@@ -1,42 +1,43 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
-import { z } from 'zod'
-import AuthLayout from '@/components/AuthLayout.vue'
-import { login } from '@/api/auth'
-import { useAuthStore } from '@/stores/auth'
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import { z } from "zod";
+import AuthLayout from "@/components/AuthLayout.vue";
+import { useAuthStore } from "@/stores/auth";
 
-const router = useRouter()
-const auth = useAuthStore()
+const router = useRouter();
+const auth = useAuthStore();
 
 const schema = toTypedSchema(
   z.object({
-    phoneNumber: z.string().min(1, 'Phone number is required'),
-    password: z.string().min(1, 'Password is required'),
-  })
-)
+    phoneNumber: z.string().min(1, "Phone number is required"),
+    password: z.string().min(1, "Password is required"),
+  }),
+);
 
-const { handleSubmit, defineField, errors, isSubmitting } = useForm({ validationSchema: schema })
+const { handleSubmit, defineField, errors, isSubmitting } = useForm({
+  validationSchema: schema,
+});
 
-const [phoneNumber, phoneNumberAttrs] = defineField('phoneNumber')
-const [password, passwordAttrs] = defineField('password')
+const [phoneNumber, phoneNumberAttrs] = defineField("phoneNumber");
+const [password, passwordAttrs] = defineField("password");
 
-const showPassword = ref(false)
-const apiError = ref('')
+const showPassword = ref(false);
+const apiError = ref("");
 
 const onSubmit = handleSubmit(async (values) => {
-  apiError.value = ''
+  apiError.value = "";
   try {
-    const { token, user } = await login(values)
-    auth.setAuth(token, user)
-    const redirect = router.currentRoute.value.query.redirect
-    router.push(redirect || auth.dashboardPath)
+    await auth.login(values);
+    const redirect = router.currentRoute.value.query.redirect;
+    router.push(redirect || auth.dashboardPath);
   } catch (err) {
-    apiError.value = err.response?.data?.error?.message ?? 'Login failed. Please try again.'
+    apiError.value =
+      err.response?.data?.message ?? "Login failed. Please try again.";
   }
-})
+});
 </script>
 
 <template>
@@ -57,7 +58,9 @@ const onSubmit = handleSubmit(async (values) => {
           placeholder="07XX XXX XXX"
           autocomplete="tel"
         />
-        <span v-if="errors.phoneNumber" class="form-error">{{ errors.phoneNumber }}</span>
+        <span v-if="errors.phoneNumber" class="form-error">{{
+          errors.phoneNumber
+        }}</span>
       </div>
 
       <div class="form-group">
@@ -79,16 +82,22 @@ const onSubmit = handleSubmit(async (values) => {
             :aria-label="showPassword ? 'Hide password' : 'Show password'"
             @click="showPassword = !showPassword"
           >
-            {{ showPassword ? 'Hide' : 'Show' }}
+            {{ showPassword ? "Hide" : "Show" }}
           </button>
         </div>
-        <span v-if="errors.password" class="form-error">{{ errors.password }}</span>
+        <span v-if="errors.password" class="form-error">{{
+          errors.password
+        }}</span>
       </div>
 
       <div v-if="apiError" class="alert alert-error">{{ apiError }}</div>
 
-      <button type="submit" class="btn btn-primary submit-btn" :disabled="isSubmitting">
-        {{ isSubmitting ? 'Signing in…' : 'Sign in' }}
+      <button
+        type="submit"
+        class="btn btn-primary submit-btn"
+        :disabled="isSubmitting"
+      >
+        {{ isSubmitting ? "Signing in…" : "Sign in" }}
       </button>
     </form>
 
@@ -154,7 +163,7 @@ const onSubmit = handleSubmit(async (values) => {
 .alert-error {
   background: var(--color-error-light);
   color: var(--color-error);
-  border: 1px solid #FECACA;
+  border: 1px solid #fecaca;
 }
 
 .submit-btn {

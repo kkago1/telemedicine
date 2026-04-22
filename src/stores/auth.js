@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { me } from '@/api/auth'
+import { login as loginApi, me } from '@/api/auth'
 
 const ROLE_DASHBOARDS = {
   PATIENT: '/patient/dashboard',
@@ -16,6 +16,13 @@ export const useAuthStore = defineStore('auth', () => {
   const role = computed(() => user.value?.role ?? null)
   const dashboardPath = computed(() => ROLE_DASHBOARDS[role.value] ?? '/')
 
+  // Derived from nested patient/practitioner profile
+  const fullName = computed(() =>
+    user.value?.patient?.fullName
+    ?? user.value?.practitioner?.fullName
+    ?? null
+  )
+
   async function rehydrate() {
     const stored = localStorage.getItem('token')
     if (!stored) return
@@ -25,6 +32,14 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {
       logout()
     }
+  }
+
+  async function login(credentials) {
+    const result = await loginApi(credentials)   // { user, token }
+    localStorage.setItem('token', result.token)
+    token.value = result.token
+    // Fetch full profile (includes nested patient/practitioner data)
+    user.value = await me()
   }
 
   function setAuth(tokenValue, userData) {
@@ -39,5 +54,5 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('token')
   }
 
-  return { user, token, isAuthenticated, role, dashboardPath, rehydrate, setAuth, logout }
+  return { user, token, isAuthenticated, role, fullName, dashboardPath, rehydrate, login, setAuth, logout }
 })

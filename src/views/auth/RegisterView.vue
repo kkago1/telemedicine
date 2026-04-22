@@ -66,10 +66,10 @@ const onSubmit = handleSubmit(async (values) => {
   successMessage.value = ''
   try {
     await register({ ...values, role: selectedRole.value })
-    successMessage.value = 'Account created! Redirecting to login…'
-    setTimeout(() => router.push('/login'), 1500)
+    successMessage.value = 'Account created! Your account will be activated shortly. Redirecting to login…'
+    setTimeout(() => router.push('/login'), 2500)
   } catch (err) {
-    apiError.value = err.response?.data?.error?.message ?? 'Registration failed. Please try again.'
+    apiError.value = err.response?.data?.message ?? 'Registration failed. Please try again.'
   }
 })
 </script>
