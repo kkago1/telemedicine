@@ -47,7 +47,7 @@ async function handleConfirm() {
     confirmAction.value = null
     await loadPage(1)
   } catch (err) {
-    error.value = err.response?.data?.error?.message ?? err.response?.data?.message ?? 'Action failed. Please try again.'
+    error.value = err.response?.data?.error?.message ?? 'Action failed. Please try again.'
     confirmAction.value = null
   } finally {
     actionInProgress.value = false

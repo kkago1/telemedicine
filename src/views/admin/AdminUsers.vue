@@ -57,7 +57,6 @@ async function handleConfirm() {
   } catch (err) {
     error.value =
       err.response?.data?.error?.message ??
-      err.response?.data?.message ??
       "Action failed. Please try again.";
     confirmAction.value = null;
   } finally {

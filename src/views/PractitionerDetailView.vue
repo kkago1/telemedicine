@@ -1,9 +1,9 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppNav from '@/components/AppNav.vue'
 import { getPractitioner } from '@/api/profile'
-import { createRequest } from '@/api/consultations'
+import { createRequest } from '@/api/connections'
 import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
@@ -51,7 +51,7 @@ function openForm() {
 async function submitRequest() {
   messageError.value = ''
   if (requestMessage.value.trim().length < 10) {
-    messageError.value = 'Please describe your reason for consultation (at least 10 characters).'
+    messageError.value = 'Please describe your reason for connecting (at least 10 characters).'
     return
   }
   formState.value = 'submitting'
@@ -65,7 +65,6 @@ async function submitRequest() {
   } catch (err) {
     requestError.value =
       err.response?.data?.error?.message
-      ?? err.response?.data?.message
       ?? 'Could not send request. Please try again.'
     formState.value = 'form'
   }
@@ -125,32 +124,32 @@ async function submitRequest() {
           <div class="card cta-card">
             <!-- Unauthenticated -->
             <template v-if="!auth.isAuthenticated">
-              <h2 class="detail-title">Request a Consultation</h2>
-              <p class="cta-desc">Sign in to send a consultation request to {{ practitioner.fullName }}.</p>
+              <h2 class="detail-title">Request a Connection</h2>
+              <p class="cta-desc">Sign in to send a connection request to {{ practitioner.fullName }}.</p>
               <button class="btn btn-primary cta-btn" @click="openForm">Sign in to request</button>
             </template>
 
             <!-- Wrong role -->
             <template v-else-if="auth.role !== 'PATIENT'">
-              <h2 class="detail-title">Consultation Requests</h2>
+              <h2 class="detail-title">Connection Requests</h2>
               <p class="text-muted" style="font-size:13px; margin-top:8px;">
-                Consultation requests are available to patients only.
+                Connection requests are available to patients only.
               </p>
             </template>
 
             <!-- Patient — idle -->
             <template v-else-if="formState === 'idle'">
-              <h2 class="detail-title">Request a Consultation</h2>
+              <h2 class="detail-title">Request a Connection</h2>
               <p class="cta-desc">
-                Send a consultation request to {{ practitioner.fullName }}.
+                Send a connection request to {{ practitioner.fullName }}.
                 They'll review it and get back to you.
               </p>
-              <button class="btn btn-primary cta-btn" @click="openForm">Request Consultation</button>
+              <button class="btn btn-primary cta-btn" @click="openForm">Request Connection</button>
             </template>
 
             <!-- Patient — form -->
             <template v-else-if="formState === 'form' || formState === 'submitting'">
-              <h2 class="detail-title">Request a Consultation</h2>
+              <h2 class="detail-title">Request a Connection</h2>
               <div class="form-group" style="margin-top:16px;">
                 <label class="form-label" for="req-message">Describe your reason</label>
                 <textarea
@@ -189,7 +188,7 @@ async function submitRequest() {
                 <div class="success-icon">✓</div>
                 <h2 class="detail-title" style="margin-top:12px;">Request sent!</h2>
                 <p class="cta-desc">
-                  Your consultation request has been sent to {{ practitioner.fullName }}.
+                  Your connection request has been sent to {{ practitioner.fullName }}.
                   You can track its status in your dashboard.
                 </p>
                 <RouterLink to="/patient/requests" class="btn btn-ghost" style="margin-top:8px; width:100%; justify-content:center;">

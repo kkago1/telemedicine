@@ -55,7 +55,7 @@ async function handleSubmit() {
     }
     emit('saved', record)
   } catch (err) {
-    error.value = err.response?.data?.error?.message ?? err.response?.data?.message ?? 'Could not save record.'
+    error.value = err.response?.data?.error?.message ?? 'Could not save record.'
   } finally {
     saving.value = false
   }

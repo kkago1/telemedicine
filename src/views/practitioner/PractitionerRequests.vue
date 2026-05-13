@@ -7,7 +7,7 @@ import PaginationBar from '@/components/PaginationBar.vue'
 import LoadingSkeleton from '@/components/LoadingSkeleton.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
-import { getIncomingRequests, acceptRequest, rejectRequest } from '@/api/consultations'
+import { getIncomingRequests, acceptRequest, rejectRequest } from '@/api/connections'
 
 const TABS = ['PENDING', 'ACCEPTED', 'REJECTED']
 const activeTab = ref('PENDING')
@@ -47,7 +47,7 @@ async function handleConfirm() {
     confirmAction.value = null
     await loadPage(1)
   } catch (err) {
-    error.value = err.response?.data?.error?.message ?? err.response?.data?.message ?? 'Action failed. Please try again.'
+    error.value = err.response?.data?.error?.message ?? 'Action failed. Please try again.'
     confirmAction.value = null
   } finally {
     actionInProgress.value = false
@@ -87,7 +87,7 @@ function fmt(date) {
       <EmptyState
         v-else-if="!requests.length"
         :title="`No ${activeTab.toLowerCase()} requests`"
-        :message="activeTab === 'PENDING' ? 'New consultation requests from patients will appear here.' : ''"
+        :message="activeTab === 'PENDING' ? 'New connection requests from patients will appear here.' : ''"
       />
 
       <div v-else class="request-list">

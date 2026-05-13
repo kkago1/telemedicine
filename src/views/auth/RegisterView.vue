@@ -1,83 +1,97 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
-import { z } from 'zod'
-import AuthLayout from '@/components/AuthLayout.vue'
-import { register } from '@/api/auth'
+import { ref, computed, watch } from "vue";
+import { useRouter } from "vue-router";
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import { z } from "zod";
+import AuthLayout from "@/components/AuthLayout.vue";
+import { register } from "@/api/auth";
 
-const router = useRouter()
+const router = useRouter();
 
-const selectedRole = ref('PATIENT')
+const selectedRole = ref("PATIENT");
+const eighteenYearsAgo = new Date();
+eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
 
-const phoneRegex = /^(\+254|0)\d{9}$/
+const phoneRegex = /^(\+254|0)\d{9}$/;
 
 const baseFields = {
-  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
+  fullName: z.string().min(2, "Full name must be at least 2 characters"),
   phoneNumber: z
     .string()
-    .min(1, 'Phone number is required')
-    .regex(phoneRegex, 'Enter a valid Kenyan phone number (e.g. 0712 345 678)'),
+    .min(1, "Phone number is required")
+    .regex(phoneRegex, "Enter a valid Kenyan phone number (e.g. 0712 345 678)"),
   password: z
     .string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Must contain at least one uppercase letter')
-    .regex(/[a-z]/, 'Must contain at least one lowercase letter')
-    .regex(/[0-9]/, 'Must contain at least one number'),
-}
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Must contain at least one number"),
+  gender: z.enum(["MALE", "FEMALE", "OTHER"], {
+    errorMap: () => ({ message: "Please select a gender" }),
+  }),
+};
 
 const patientSchema = z.object({
   ...baseFields,
-  dateOfBirth: z.string().min(1, 'Date of birth is required'),
-  gender: z.enum(['MALE', 'FEMALE', 'OTHER'], {
-    errorMap: () => ({ message: 'Please select a gender' }),
-  }),
-})
+  dateOfBirth: z
+    .string()
+    .min(1, "Date of birth is required")
+    .max(10, "Invalid date format"),
+});
 
 const practitionerSchema = z.object({
   ...baseFields,
-  licenseNumber: z.string().min(1, 'License number is required'),
-  specialization: z.string().min(2, 'Specialization is required'),
-})
+  licenseNumber: z.string().min(1, "License number is required"),
+  specialization: z.string().min(2, "Specialization is required"),
+});
 
 const validationSchema = computed(() =>
-  toTypedSchema(selectedRole.value === 'PATIENT' ? patientSchema : practitionerSchema)
-)
+  toTypedSchema(
+    selectedRole.value === "PATIENT" ? patientSchema : practitionerSchema,
+  ),
+);
 
-const { handleSubmit, defineField, errors, isSubmitting, resetForm } = useForm({ validationSchema })
+const { handleSubmit, defineField, errors, isSubmitting, resetForm } = useForm({
+  validationSchema,
+});
 
-watch(selectedRole, () => resetForm())
+watch(selectedRole, () => resetForm());
 
-const [fullName, fullNameAttrs] = defineField('fullName')
-const [phoneNumber, phoneNumberAttrs] = defineField('phoneNumber')
-const [password, passwordAttrs] = defineField('password')
-const [dateOfBirth, dateOfBirthAttrs] = defineField('dateOfBirth')
-const [gender, genderAttrs] = defineField('gender')
-const [licenseNumber, licenseNumberAttrs] = defineField('licenseNumber')
-const [specialization, specializationAttrs] = defineField('specialization')
+const [fullName, fullNameAttrs] = defineField("fullName");
+const [phoneNumber, phoneNumberAttrs] = defineField("phoneNumber");
+const [password, passwordAttrs] = defineField("password");
+const [dateOfBirth, dateOfBirthAttrs] = defineField("dateOfBirth");
+const [gender, genderAttrs] = defineField("gender");
+const [licenseNumber, licenseNumberAttrs] = defineField("licenseNumber");
+const [specialization, specializationAttrs] = defineField("specialization");
 
-const showPassword = ref(false)
-const apiError = ref('')
-const successMessage = ref('')
+const showPassword = ref(false);
+const apiError = ref("");
+const successMessage = ref("");
 
 const onSubmit = handleSubmit(async (values) => {
-  apiError.value = ''
-  successMessage.value = ''
+  apiError.value = "";
+  successMessage.value = "";
   try {
-    await register({ ...values, role: selectedRole.value })
-    successMessage.value = 'Account created! Your account will be activated shortly. Redirecting to login…'
-    setTimeout(() => router.push('/login'), 2500)
+    await register({ ...values, role: selectedRole.value });
+    successMessage.value =
+      "Account created! Your account will be activated shortly. Redirecting to login…";
+    setTimeout(() => router.push("/login"), 2500);
   } catch (err) {
-    apiError.value = err.response?.data?.message ?? 'Registration failed. Please try again.'
+    apiError.value =
+      err.response?.data?.error?.message ??
+      "Registration failed. Please try again.";
   }
-})
+});
 </script>
 
 <template>
   <AuthLayout>
     <h1 class="form-title">Create an account</h1>
-    <p class="form-subtitle">Join TeleMed to connect with healthcare professionals.</p>
+    <p class="form-subtitle">
+      Join TeleMed to connect with healthcare professionals.
+    </p>
 
     <!-- Role selector -->
     <div class="role-selector">
@@ -117,7 +131,9 @@ const onSubmit = handleSubmit(async (values) => {
           placeholder="Jane Doe"
           autocomplete="name"
         />
-        <span v-if="errors.fullName" class="form-error">{{ errors.fullName }}</span>
+        <span v-if="errors.fullName" class="form-error">{{
+          errors.fullName
+        }}</span>
       </div>
 
       <div class="form-group">
@@ -132,7 +148,9 @@ const onSubmit = handleSubmit(async (values) => {
           placeholder="0712 345 678"
           autocomplete="tel"
         />
-        <span v-if="errors.phoneNumber" class="form-error">{{ errors.phoneNumber }}</span>
+        <span v-if="errors.phoneNumber" class="form-error">{{
+          errors.phoneNumber
+        }}</span>
       </div>
 
       <div class="form-group">
@@ -154,10 +172,29 @@ const onSubmit = handleSubmit(async (values) => {
             :aria-label="showPassword ? 'Hide password' : 'Show password'"
             @click="showPassword = !showPassword"
           >
-            {{ showPassword ? 'Hide' : 'Show' }}
+            {{ showPassword ? "Hide" : "Show" }}
           </button>
         </div>
-        <span v-if="errors.password" class="form-error">{{ errors.password }}</span>
+        <span v-if="errors.password" class="form-error">{{
+          errors.password
+        }}</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="gender">Gender</label>
+        <select
+          id="gender"
+          v-model="gender"
+          v-bind="genderAttrs"
+          class="form-input"
+          :class="{ 'is-error': errors.gender }"
+        >
+          <option value="" disabled>Select gender</option>
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+          <option value="OTHER">Other</option>
+        </select>
+        <span v-if="errors.gender" class="form-error">{{ errors.gender }}</span>
       </div>
 
       <!-- Patient-specific fields -->
@@ -169,27 +206,13 @@ const onSubmit = handleSubmit(async (values) => {
             v-model="dateOfBirth"
             v-bind="dateOfBirthAttrs"
             type="date"
+            :max="eighteenYearsAgo.toISOString().split('T')[0]"
             class="form-input"
             :class="{ 'is-error': errors.dateOfBirth }"
           />
-          <span v-if="errors.dateOfBirth" class="form-error">{{ errors.dateOfBirth }}</span>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="gender">Gender</label>
-          <select
-            id="gender"
-            v-model="gender"
-            v-bind="genderAttrs"
-            class="form-input"
-            :class="{ 'is-error': errors.gender }"
-          >
-            <option value="" disabled>Select gender</option>
-            <option value="MALE">Male</option>
-            <option value="FEMALE">Female</option>
-            <option value="OTHER">Other</option>
-          </select>
-          <span v-if="errors.gender" class="form-error">{{ errors.gender }}</span>
+          <span v-if="errors.dateOfBirth" class="form-error">{{
+            errors.dateOfBirth
+          }}</span>
         </div>
       </template>
 
@@ -206,7 +229,9 @@ const onSubmit = handleSubmit(async (values) => {
             :class="{ 'is-error': errors.licenseNumber }"
             placeholder="KMPDC-XXXXX"
           />
-          <span v-if="errors.licenseNumber" class="form-error">{{ errors.licenseNumber }}</span>
+          <span v-if="errors.licenseNumber" class="form-error">{{
+            errors.licenseNumber
+          }}</span>
         </div>
 
         <div class="form-group">
@@ -220,15 +245,23 @@ const onSubmit = handleSubmit(async (values) => {
             :class="{ 'is-error': errors.specialization }"
             placeholder="e.g. General Practice, Cardiology"
           />
-          <span v-if="errors.specialization" class="form-error">{{ errors.specialization }}</span>
+          <span v-if="errors.specialization" class="form-error">{{
+            errors.specialization
+          }}</span>
         </div>
       </template>
 
       <div v-if="apiError" class="alert alert-error">{{ apiError }}</div>
-      <div v-if="successMessage" class="alert alert-success">{{ successMessage }}</div>
+      <div v-if="successMessage" class="alert alert-success">
+        {{ successMessage }}
+      </div>
 
-      <button type="submit" class="btn btn-primary submit-btn" :disabled="isSubmitting">
-        {{ isSubmitting ? 'Creating account…' : 'Create account' }}
+      <button
+        type="submit"
+        class="btn btn-primary submit-btn"
+        :disabled="isSubmitting"
+      >
+        {{ isSubmitting ? "Creating account…" : "Create account" }}
       </button>
     </form>
 
@@ -270,7 +303,9 @@ const onSubmit = handleSubmit(async (values) => {
   border-radius: var(--radius-md);
   background: var(--color-bg);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
   text-align: center;
 }
 
@@ -340,13 +375,13 @@ const onSubmit = handleSubmit(async (values) => {
 .alert-error {
   background: var(--color-error-light);
   color: var(--color-error);
-  border: 1px solid #FECACA;
+  border: 1px solid #fecaca;
 }
 
 .alert-success {
   background: var(--color-success-light);
-  color: #15803D;
-  border: 1px solid #BBF7D0;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
 }
 
 .submit-btn {

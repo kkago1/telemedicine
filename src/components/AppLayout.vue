@@ -12,15 +12,19 @@ const navLinks = computed(() => {
     return [
       { label: 'Dashboard',         to: '/patient/dashboard' },
       { label: 'My Requests',       to: '/patient/requests' },
-      { label: 'My Practitioners',  to: '/patient/relationships' },
-      { label: 'Medical Records',   to: '/patient/records' },
+      { label: 'My Practitioners',       to: '/patient/relationships' },
+      { label: 'Medical Records',        to: '/patient/records' },
+      { label: 'Consultation Requests',  to: '/patient/consultation-requests' },
+      { label: 'My Consultations',       to: '/patient/consultations' },
     ]
   }
   if (auth.role === 'PRACTITIONER') {
     return [
       { label: 'Dashboard',         to: '/practitioner/dashboard' },
-      { label: 'Incoming Requests', to: '/practitioner/requests' },
-      { label: 'My Patients',       to: '/practitioner/patients' },
+      { label: 'Incoming Requests',      to: '/practitioner/requests' },
+      { label: 'My Patients',            to: '/practitioner/patients' },
+      { label: 'Consultation Requests',  to: '/practitioner/consultation-requests' },
+      { label: 'My Consultations',       to: '/practitioner/consultations' },
     ]
   }
   if (auth.role === 'ADMIN') {

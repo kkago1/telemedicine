@@ -43,7 +43,7 @@ async function handleTerminate() {
     confirmId.value = null
     await loadPage(1)
   } catch (err) {
-    error.value = err.response?.data?.error?.message ?? err.response?.data?.message ?? 'Could not terminate relationship.'
+    error.value = err.response?.data?.error?.message ?? 'Could not terminate relationship.'
     confirmId.value = null
   } finally {
     terminating.value = false
@@ -83,7 +83,7 @@ function fmt(date) {
       <EmptyState
         v-else-if="!relationships.length"
         :title="activeTab === 'ACTIVE' ? 'No active practitioners' : 'No past relationships'"
-        :message="activeTab === 'ACTIVE' ? 'Once a practitioner accepts your consultation request, they\'ll appear here.' : ''"
+        :message="activeTab === 'ACTIVE' ? 'Once a practitioner accepts your connection request, they\'ll appear here.' : ''"
         :action-label="activeTab === 'ACTIVE' ? 'Browse Practitioners' : ''"
         action-to="/practitioners"
       />
@@ -105,6 +105,13 @@ function fmt(date) {
           </div>
           <div class="rel-side">
             <StatusBadge :status="rel.status" />
+            <RouterLink
+              v-if="rel.status === 'ACTIVE'"
+              :to="`/patient/consultation-requests?practitionerId=${rel.practitionerId}`"
+              class="btn btn-secondary req-consult-btn"
+            >
+              Request Consultation
+            </RouterLink>
             <button
               v-if="rel.status === 'ACTIVE'"
               class="btn btn-danger term-btn"
@@ -189,4 +196,5 @@ function fmt(date) {
 .rel-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0; }
 
 .term-btn { padding: 6px 14px; font-size: 13px; }
+.req-consult-btn { padding: 6px 14px; font-size: 13px; }
 </style>

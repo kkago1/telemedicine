@@ -3,20 +3,22 @@ import { ref, onMounted } from 'vue'
 import dayjs from 'dayjs'
 import AppLayout from '@/components/AppLayout.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
-import { getMyRequests } from '@/api/consultations'
+import { getMyRequests } from '@/api/connections'
 import { getRelationships } from '@/api/relationships'
 import { getMyRecords } from '@/api/records'
+import { getMyConsultationRequests } from '@/api/consultationRequests'
 
-const stats = ref({ pendingRequests: 0, activeRelationships: 0, totalRecords: 0 })
+const stats = ref({ pendingRequests: 0, activeRelationships: 0, totalRecords: 0, pendingConsultations: 0 })
 const recentRequests = ref([])
 const loading = ref(true)
 
 onMounted(async () => {
-  const [reqResult, relResult, recResult, recentResult] = await Promise.allSettled([
+  const [reqResult, relResult, recResult, recentResult, consultResult] = await Promise.allSettled([
     getMyRequests({ status: 'PENDING', page: 1, limit: 1 }),
     getRelationships({ status: 'ACTIVE', page: 1, limit: 1 }),
     getMyRecords({ page: 1, limit: 1 }),
     getMyRequests({ page: 1, limit: 5 }),
+    getMyConsultationRequests({ status: 'PENDING', page: 1, pageSize: 1 }),
   ])
 
   if (reqResult.status === 'fulfilled')
@@ -27,6 +29,8 @@ onMounted(async () => {
     stats.value.totalRecords = recResult.value.pagination?.total ?? 0
   if (recentResult.status === 'fulfilled')
     recentRequests.value = recentResult.value.data
+  if (consultResult.status === 'fulfilled')
+    stats.value.pendingConsultations = consultResult.value.pagination?.total ?? 0
 
   loading.value = false
 })
@@ -43,7 +47,7 @@ function fmt(date) {
 
       <!-- Stats -->
       <div v-if="loading" class="stats-grid">
-        <div v-for="n in 3" :key="n" class="skeleton-stat" />
+        <div v-for="n in 4" :key="n" class="skeleton-stat" />
       </div>
       <div v-else class="stats-grid">
         <div class="stat-card stat-amber">
@@ -61,12 +65,18 @@ function fmt(date) {
           <p class="stat-label">Medical Records</p>
           <RouterLink to="/patient/records" class="stat-link">View all →</RouterLink>
         </div>
+        <div class="stat-card stat-purple">
+          <p class="stat-value">{{ stats.pendingConsultations }}</p>
+          <p class="stat-label">Pending Consultations</p>
+          <RouterLink to="/patient/consultation-requests" class="stat-link">View all →</RouterLink>
+        </div>
       </div>
 
       <!-- Quick actions -->
       <div class="quick-actions">
         <RouterLink to="/practitioners" class="btn btn-primary">Find a Practitioner</RouterLink>
         <RouterLink to="/patient/requests" class="btn btn-secondary">My Requests</RouterLink>
+        <RouterLink to="/patient/consultation-requests" class="btn btn-secondary">Consultation Requests</RouterLink>
         <RouterLink to="/patient/records" class="btn btn-secondary">My Records</RouterLink>
       </div>
 
@@ -119,9 +129,10 @@ function fmt(date) {
 .stat-link   { font-size: 13px; font-weight: 500; color: inherit; opacity: 0.7; margin-top: 12px; display: block; }
 .stat-link:hover { opacity: 1; }
 
-.stat-amber { background: var(--color-warning-light); border-color: #FDE68A; color: #92400E; }
-.stat-teal  { background: var(--color-primary-light); border-color: #99F6E4; color: var(--color-primary-dark); }
-.stat-blue  { background: #EFF6FF; border-color: #BFDBFE; color: #1E40AF; }
+.stat-amber  { background: var(--color-warning-light); border-color: #FDE68A; color: #92400E; }
+.stat-teal   { background: var(--color-primary-light); border-color: #99F6E4; color: var(--color-primary-dark); }
+.stat-blue   { background: #EFF6FF; border-color: #BFDBFE; color: #1E40AF; }
+.stat-purple { background: #F5F3FF; border-color: #DDD6FE; color: #5B21B6; }
 
 .skeleton-stat {
   height: 110px;

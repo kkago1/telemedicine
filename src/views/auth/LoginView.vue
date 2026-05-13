@@ -35,7 +35,7 @@ const onSubmit = handleSubmit(async (values) => {
     router.push(redirect || auth.dashboardPath);
   } catch (err) {
     apiError.value =
-      err.response?.data?.message ?? "Login failed. Please try again.";
+      err.response?.data?.error?.message ?? "Login failed. Please try again.";
   }
 });
 </script>

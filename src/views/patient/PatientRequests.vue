@@ -7,7 +7,7 @@ import PaginationBar from '@/components/PaginationBar.vue'
 import LoadingSkeleton from '@/components/LoadingSkeleton.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
-import { getMyRequests, cancelRequest } from '@/api/consultations'
+import { getMyRequests, cancelRequest } from '@/api/connections'
 
 const TABS = ['PENDING', 'ACCEPTED', 'REJECTED', 'CANCELLED']
 const activeTab = ref('PENDING')
@@ -43,7 +43,7 @@ async function handleCancel() {
     confirmId.value = null
     await loadPage(1)
   } catch (err) {
-    error.value = err.response?.data?.error?.message ?? err.response?.data?.message ?? 'Could not cancel request.'
+    error.value = err.response?.data?.error?.message ?? 'Could not cancel request.'
     confirmId.value = null
   } finally {
     cancelling.value = false
@@ -58,7 +58,7 @@ function fmt(date) {
 <template>
   <AppLayout>
     <div class="page">
-      <h1 class="page-title">My Consultation Requests</h1>
+      <h1 class="page-title">My Connection Requests</h1>
 
       <!-- Tabs -->
       <div class="tabs">
@@ -86,7 +86,7 @@ function fmt(date) {
       <EmptyState
         v-else-if="!requests.length"
         :title="`No ${activeTab.toLowerCase()} requests`"
-        :message="activeTab === 'PENDING' ? 'Browse practitioners to send your first consultation request.' : ''"
+        :message="activeTab === 'PENDING' ? 'Browse practitioners to send your first connection request.' : ''"
         :action-label="activeTab === 'PENDING' ? 'Find a Practitioner' : ''"
         action-to="/practitioners"
       />
@@ -125,7 +125,7 @@ function fmt(date) {
     <ConfirmModal
       v-if="confirmId"
       title="Cancel Request?"
-      message="Are you sure you want to cancel this consultation request? This cannot be undone."
+      message="Are you sure you want to cancel this connection request? This cannot be undone."
       confirm-label="Yes, cancel it"
       confirm-class="btn-danger"
       :loading="cancelling"

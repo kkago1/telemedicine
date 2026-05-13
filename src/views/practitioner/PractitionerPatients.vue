@@ -43,7 +43,7 @@ async function handleTerminate() {
     confirmId.value = null
     await loadPage(1)
   } catch (err) {
-    error.value = err.response?.data?.error?.message ?? err.response?.data?.message ?? 'Could not terminate relationship.'
+    error.value = err.response?.data?.error?.message ?? 'Could not terminate relationship.'
     confirmId.value = null
   } finally {
     terminating.value = false
@@ -83,7 +83,7 @@ function fmt(date) {
       <EmptyState
         v-else-if="!relationships.length"
         :title="activeTab === 'ACTIVE' ? 'No active patients' : 'No past patients'"
-        :message="activeTab === 'ACTIVE' ? 'Accept a consultation request to start a patient relationship.' : ''"
+        :message="activeTab === 'ACTIVE' ? 'Accept a connection request to start a patient relationship.' : ''"
         :action-label="activeTab === 'ACTIVE' ? 'Review Requests' : ''"
         action-to="/practitioner/requests"
       />

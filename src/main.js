@@ -10,9 +10,11 @@ const app = createApp(App)
 const pinia = createPinia()
 
 app.use(pinia)
-app.use(router)
 
 const auth = useAuthStore()
 await auth.rehydrate()
+
+
+app.use(router)
 
 app.mount('#app')

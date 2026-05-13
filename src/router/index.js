@@ -52,6 +52,16 @@ const routes = [
     component: () => import("@/views/patient/PatientRecords.vue"),
     meta: { role: "PATIENT" },
   },
+  {
+    path: "/patient/consultation-requests",
+    component: () => import("@/views/patient/PatientConsultationRequests.vue"),
+    meta: { role: "PATIENT" },
+  },
+  {
+    path: "/patient/consultations",
+    component: () => import("@/views/patient/PatientConsultations.vue"),
+    meta: { role: "PATIENT" },
+  },
 
   // Practitioner
   {
@@ -73,6 +83,18 @@ const routes = [
     path: "/practitioner/patients/:id",
     component: () =>
       import("@/views/practitioner/PractitionerPatientDetail.vue"),
+    meta: { role: "PRACTITIONER" },
+  },
+  {
+    path: "/practitioner/consultation-requests",
+    component: () =>
+      import("@/views/practitioner/PractitionerConsultationRequests.vue"),
+    meta: { role: "PRACTITIONER" },
+  },
+  {
+    path: "/practitioner/consultations",
+    component: () =>
+      import("@/views/practitioner/PractitionerConsultations.vue"),
     meta: { role: "PRACTITIONER" },
   },
 
